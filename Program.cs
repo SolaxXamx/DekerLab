@@ -3872,4 +3872,3 @@ internal sealed class SplashForm : Form
         if (_progress >= 100 && Opacity >= 1.0f) { _animationTimer.Stop(); Close(); }
     }
 }
-}
