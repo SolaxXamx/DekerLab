@@ -28,7 +28,7 @@ internal static class Program
         using var form = new LauncherForm(args);
         Application.Run(form);
     }
-}
+
 
 internal sealed record GameEntry(string Name, string Path, string IconPath);
 
@@ -3871,4 +3871,5 @@ internal sealed class SplashForm : Form
                            _progress < 90 ? "Préparation de l'interface..." : "Prêt à lancer !";
         if (_progress >= 100 && Opacity >= 1.0f) { _animationTimer.Stop(); Close(); }
     }
+}
 }
