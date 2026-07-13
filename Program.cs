@@ -12,7 +12,19 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
         ApplicationConfiguration.Initialize();
+        
+        // Show splash screen
+        var splashLogoPath = Path.Combine(AppContext.BaseDirectory, "Resources", "logo_blue.png");
+        using (var splash = new SplashForm(splashLogoPath))
+        {
+            splash.Show();
+            Application.DoEvents();
+            System.Threading.Thread.Sleep(2000);
+        }
+        
         using var form = new LauncherForm(args);
         Application.Run(form);
     }
@@ -155,6 +167,9 @@ internal sealed class LauncherForm : Form
     private readonly Label _userName = new() { AutoSize = true, Left = 92, Top = 22, Font = new Font("Segoe UI", 14, FontStyle.Bold), Cursor = Cursors.Hand };
     private readonly Label _levelLabel = new() { AutoSize = true, Left = 92, Top = 50, Font = new Font("Segoe UI", 10), Cursor = Cursors.Hand };
     private readonly FlowLayoutPanel _navCenter = new() { AutoSize = true, WrapContents = false };
+    private readonly NavButton _homeButton = new() { Text = "Accueil", Width = 120, Height = 44 };
+    private HomePage _homePage = null!;
+    private Control _currentView = null!;
     private readonly NavButton _libraryButton = new() { Text = "Bibliothèque", Width = 140, Height = 44 };
     private readonly NavButton _profileButton = new() { Text = "Profil", Width = 96, Height = 44 };
     private readonly NavButton _settingsButton = new() { Text = "Paramètre", Width = 120, Height = 44 };
@@ -257,7 +272,34 @@ internal sealed class LauncherForm : Form
 
         Resize += (_, _) => LayoutViews();
         Shown += (_, _) => { LayoutViews(); StartFadeIn(); };
-    }
+ 
+
+        private void ShowHome()
+        {
+            _homePage.UpdateStats(_games.Count, _stats.TotalMinutes / 60, GetCurrentLevel());
+            SwitchView(_homePage);
+        }
+
+        private void ShowLibrary() => SwitchView(_content);
+
+        private void ShowProfile() => SwitchView(_profilePage);
+
+        private void ShowSettings() => SwitchView(_settingsPage);
+
+        private void SwitchView(Control newView)
+        {
+            _currentView.Visible = false;
+            _currentView = newView;
+            _currentView.Visible = true;
+            _currentView.BringToFront();
+        }
+
+        private int GetCurrentLevel()
+        {
+            var (level, _, _) = LevelSystem.ComputeFromXp(_stats.TotalMinutes);
+            return level;
+        }
+   }
 
     protected override void OnHandleCreated(EventArgs e)
     {
@@ -3563,5 +3605,270 @@ internal static class ShortcutResolver
         void Save([MarshalAs(UnmanagedType.LPWStr)] string pszFileName, bool fRemember);
         void SaveCompleted([MarshalAs(UnmanagedType.LPWStr)] string pszFileName);
         void GetCurFile([MarshalAs(UnmanagedType.LPWStr)] out string ppszFileName);
+    }
+}
+
+// ========== HOME PAGE ==========
+
+internal sealed class HomePage : UserControl
+{
+    private readonly LauncherForm _parent;
+    private readonly string _logoPath;
+    private readonly Palette _theme;
+    private PictureBox _logoPicture = null!;
+    private Label _welcomeLabel = null!;
+    private Label _statsLabel = null!;
+    private RoundedButton _libraryButton = null!;
+    private RoundedButton _profileButton = null!;
+    private RoundedButton _settingsButton = null!;
+
+    public HomePage(LauncherForm parent, string logoPath, Palette theme)
+    {
+        _parent = parent;
+        _logoPath = logoPath;
+        _theme = theme;
+        InitializeComponent();
+        Dock = DockStyle.Fill;
+        BackColor = _theme.Background;
+    }
+
+    private void InitializeComponent()
+    {
+        // Logo
+        _logoPicture = new PictureBox
+        {
+            SizeMode = PictureBoxSizeMode.StretchImage,
+            Size = new Size(200, 80),
+            Location = new Point((Width - 200) / 2, 40),
+            BackColor = Color.Transparent
+        };
+        if (File.Exists(_logoPath))
+        {
+            try { _logoPicture.Image = Image.FromFile(_logoPath); }
+            catch { _logoPicture.Image = new Bitmap(200, 80); }
+        }
+        Controls.Add(_logoPicture);
+
+        // Welcome label
+        _welcomeLabel = new Label
+        {
+            Text = "Bienvenue sur DekerLab",
+            Font = new Font("Segoe UI", 24, FontStyle.Bold),
+            ForeColor = _theme.Text,
+            AutoSize = true,
+            Location = new Point((Width - 300) / 2, 140),
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+        Controls.Add(_welcomeLabel);
+
+        // Stats label
+        _statsLabel = new Label
+        {
+            Text = "0 jeux • 0h de jeu • Niveau 1",
+            Font = new Font("Segoe UI", 14),
+            ForeColor = _theme.Muted,
+            AutoSize = true,
+            Location = new Point((Width - 300) / 2, 180),
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+        Controls.Add(_statsLabel);
+
+        // Buttons
+        int buttonWidth = 200;
+        int buttonHeight = 50;
+        int buttonY = 240;
+        int buttonSpacing = 20;
+
+        _libraryButton = new RoundedButton
+        {
+            Text = "Bibliothèque",
+            Size = new Size(buttonWidth, buttonHeight),
+            Location = new Point((Width - buttonWidth) / 2, buttonY),
+            CornerRadius = 12,
+            Font = new Font("Segoe UI", 12, FontStyle.Bold),
+            BackColor = _theme.Accent,
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Cursor = Cursors.Hand
+        };
+        _libraryButton.Click += (s, e) => _parent.ShowLibrary();
+        Controls.Add(_libraryButton);
+
+        _profileButton = new RoundedButton
+        {
+            Text = "Profil",
+            Size = new Size(buttonWidth, buttonHeight),
+            Location = new Point((Width - buttonWidth) / 2, buttonY + buttonHeight + buttonSpacing),
+            CornerRadius = 12,
+            Font = new Font("Segoe UI", 12, FontStyle.Bold),
+            BackColor = _theme.Card,
+            ForeColor = _theme.Text,
+            FlatStyle = FlatStyle.Flat,
+            Cursor = Cursors.Hand
+        };
+        _profileButton.Click += (s, e) => _parent.ShowProfile();
+        Controls.Add(_profileButton);
+
+        _settingsButton = new RoundedButton
+        {
+            Text = "Paramètres",
+            Size = new Size(buttonWidth, buttonHeight),
+            Location = new Point((Width - buttonWidth) / 2, buttonY + 2 * (buttonHeight + buttonSpacing)),
+            CornerRadius = 12,
+            Font = new Font("Segoe UI", 12, FontStyle.Bold),
+            BackColor = _theme.Card,
+            ForeColor = _theme.Text,
+            FlatStyle = FlatStyle.Flat,
+            Cursor = Cursors.Hand
+        };
+        _settingsButton.Click += (s, e) => _parent.ShowSettings();
+        Controls.Add(_settingsButton);
+
+        // Resize handling
+        Resize += OnResize;
+    }
+
+    private void OnResize(object sender, EventArgs e)
+    {
+        if (_logoPicture != null)
+            _logoPicture.Location = new Point((Width - _logoPicture.Width) / 2, 40);
+        if (_welcomeLabel != null)
+            _welcomeLabel.Location = new Point((Width - 300) / 2, 140);
+        if (_statsLabel != null)
+            _statsLabel.Location = new Point((Width - 300) / 2, 180);
+        if (_libraryButton != null)
+            _libraryButton.Location = new Point((Width - _libraryButton.Width) / 2, 240);
+        if (_profileButton != null)
+            _profileButton.Location = new Point((Width - _profileButton.Width) / 2, 300);
+        if (_settingsButton != null)
+            _settingsButton.Location = new Point((Width - _settingsButton.Width) / 2, 360);
+    }
+
+    public void UpdateStats(int gameCount, double totalHours, int level)
+    {
+        _statsLabel.Text = $"{gameCount} jeux • {totalHours:F1}h de jeu • Niveau {level}";
+    }
+}
+
+// ========== ROUNDED BUTTON ==========
+
+internal sealed class RoundedButton : Button
+{
+    private int _cornerRadius = 12;
+    public int CornerRadius
+    {
+        get => _cornerRadius;
+        set { _cornerRadius = value; Invalidate(); }
+    }
+
+    public RoundedButton()
+    {
+        FlatStyle = FlatStyle.Flat;
+        FlatAppearance.BorderSize = 0;
+        Size = new Size(150, 40);
+    }
+
+    private GraphicsPath GetFigurePath(Rectangle rect, int radius)
+    {
+        var path = new GraphicsPath();
+        path.StartFigure();
+        path.AddArc(rect.X, rect.Y, radius, radius, 180, 90);
+        path.AddArc(rect.Right - radius, rect.Y, radius, radius, 270, 90);
+        path.AddArc(rect.Right - radius, rect.Bottom - radius, radius, radius, 0, 90);
+        path.AddArc(rect.X, rect.Bottom - radius, radius, radius, 90, 90);
+        path.CloseFigure();
+        return path;
+    }
+
+    protected override void OnPaint(PaintEventArgs pevent)
+    {
+        base.OnPaint(pevent);
+        var path = GetFigurePath(ClientRectangle, CornerRadius);
+        pevent.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        pevent.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+        pevent.Graphics.FillPath(new SolidBrush(BackColor), path);
+        pevent.Graphics.DrawString(Text, Font, new SolidBrush(ForeColor),
+            ClientRectangle, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+    }
+}
+
+// ========== NEW CLASSES FOR SPLASH SCREEN ==========
+
+internal sealed class SplashForm : Form
+{
+    private readonly Timer _animationTimer = new() { Interval = 50 };
+    private readonly PictureBox _logoPicture = new();
+    private readonly Label _loadingLabel = new();
+    private readonly ProgressBar _progressBar = new();
+    private readonly Label _statusLabel = new();
+    private float _opacity = 0f;
+    private int _progress = 0;
+    private readonly string _logoPath;
+
+    public SplashForm(string logoPath)
+    {
+        _logoPath = logoPath;
+        InitializeComponent();
+        StartAnimation();
+    }
+
+    private void InitializeComponent()
+    {
+        FormBorderStyle = FormBorderStyle.None;
+        StartPosition = FormStartPosition.CenterScreen;
+        BackColor = Color.FromArgb(16, 16, 24);
+        Size = new Size(600, 400);
+        Opacity = 0;
+        DoubleBuffered = true;
+
+        _logoPicture.SizeMode = PictureBoxSizeMode.StretchImage;
+        _logoPicture.Size = new Size(300, 120);
+        _logoPicture.Location = new Point((Width - _logoPicture.Width) / 2, 80);
+        if (File.Exists(_logoPath))
+        {
+            try { _logoPicture.Image = Image.FromFile(_logoPath); }
+            catch { _logoPicture.Image = new Bitmap(300, 120); }
+        }
+        Controls.Add(_logoPicture);
+
+        _loadingLabel.Text = "DekerLab";
+        _loadingLabel.Font = new Font("Segoe UI", 24, FontStyle.Bold);
+        _loadingLabel.ForeColor = Color.White;
+        _loadingLabel.Size = new Size(300, 40);
+        _loadingLabel.Location = new Point((Width - _loadingLabel.Width) / 2, 220);
+        _loadingLabel.TextAlign = ContentAlignment.MiddleCenter;
+        Controls.Add(_loadingLabel);
+
+        _statusLabel.Text = "Chargement...";
+        _statusLabel.Font = new Font("Segoe UI", 12);
+        _statusLabel.ForeColor = Color.FromArgb(180, 180, 180);
+        _statusLabel.Size = new Size(300, 20);
+        _statusLabel.Location = new Point((Width - _statusLabel.Width) / 2, 260);
+        _statusLabel.TextAlign = ContentAlignment.MiddleCenter;
+        Controls.Add(_statusLabel);
+
+        _progressBar.Minimum = 0;
+        _progressBar.Maximum = 100;
+        _progressBar.Value = 0;
+        _progressBar.Size = new Size(300, 6);
+        _progressBar.Location = new Point((Width - _progressBar.Width) / 2, 290);
+        _progressBar.BackColor = Color.FromArgb(40, 40, 40);
+        _progressBar.ForeColor = Color.FromArgb(0, 120, 215);
+        _progressBar.Style = ProgressBarStyle.Continuous;
+        Controls.Add(_progressBar);
+
+        _animationTimer.Tick += OnAnimationTick;
+    }
+
+    private void StartAnimation() => _animationTimer.Start();
+
+    private void OnAnimationTick(object sender, EventArgs e)
+    {
+        if (_opacity < 1.0f) { _opacity += 0.05f; Opacity = _opacity; }
+        if (_progress < 100) { _progress += 2; _progressBar.Value = _progress; }
+        _statusLabel.Text = _progress < 30 ? "Initialisation..." : 
+                           _progress < 60 ? "Chargement des jeux..." : 
+                           _progress < 90 ? "Préparation de l'interface..." : "Prêt à lancer !";
+        if (_progress >= 100 && Opacity >= 1.0f) { _animationTimer.Stop(); Close(); }
     }
 }

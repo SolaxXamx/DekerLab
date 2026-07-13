@@ -18,5 +18,8 @@
   <ItemGroup>
     <None Update="app.ico" CopyToOutputDirectory="PreserveNewest" />
     <None Update="DekerLab.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources\app_icon.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources\logo_black.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Resources\logo_blue.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
