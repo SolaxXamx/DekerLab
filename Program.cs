@@ -272,7 +272,7 @@ internal sealed class LauncherForm : Form
 
         Resize += (_, _) => LayoutViews();
         Shown += (_, _) => { LayoutViews(); StartFadeIn(); };
- 
+    }
 
         private void ShowHome()
         {
