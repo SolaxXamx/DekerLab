@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <Platforms>x86</Platforms>
+    <PlatformTarget>x86</PlatformTarget>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>DekerLab</AssemblyName>
+    <RootNamespace>MonLauncherJeux</RootNamespace>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Product>DekerLab</Product>
+    <AssemblyTitle>DekerLab</AssemblyTitle>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="app.ico" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="DekerLab.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
