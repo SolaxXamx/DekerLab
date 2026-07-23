@@ -29,55 +29,6 @@ public partial class RocketStatsForm
     private GraphPanel _mmrGraph = new();
     private GraphPanel _winsGraph = new();
 
-    private void InitializeSideBar()
-    {
-        _sideBar.Dock = DockStyle.Left;
-        _sideBar.Width = 250;
-        _sideBar.BackColor = Color.FromArgb(20, 20, 20);
-
-        _userAvatar.Circular = true;
-        _userAvatar.Size = new Size(48, 48);
-        _userAvatar.Location = new Point(16, 16);
-        _userAvatar.Image = ImageHelper.CreateAvatar("", 48);
-
-        _userNameLabel.Text = "Rechercher un joueur";
-        _userNameLabel.ForeColor = Color.FromArgb(150, 150, 150);
-        _userNameLabel.Font = new Font("Segoe UI", 11, FontStyle.Regular);
-        _userNameLabel.Location = new Point(72, 16);
-        _userNameLabel.AutoSize = true;
-
-        _dashboardButton.Text = "  Tableau de bord";
-        _dashboardButton.IsSelected = true;
-        _dashboardButton.Click += (s, e) => ShowView(_dashboardPanel);
-
-        _profileButton.Text = "  Profil";
-        _profileButton.Click += (s, e) => ShowView(_profilePanel);
-
-        _statsButton.Text = "  Statistiques";
-        _statsButton.Click += (s, e) => ShowView(_statsPanel);
-
-        _graphsButton.Text = "  Graphiques";
-        _graphsButton.Click += (s, e) => ShowView(_graphsPanel);
-
-        _settingsButton.Text = "  Param\u0019tres";
-        _settingsButton.Click += (s, e) => ShowView(_settingsPanel);
-
-        _sideBar.Controls.Add(_userAvatar);
-        _sideBar.Controls.Add(_userNameLabel);
-        _sideBar.Controls.Add(_dashboardButton);
-        _sideBar.Controls.Add(_profileButton);
-        _sideBar.Controls.Add(_statsButton);
-        _sideBar.Controls.Add(_graphsButton);
-        _sideBar.Controls.Add(_settingsButton);
-    }
-
-    private void InitializeMainContent()
-    {
-        _mainContent.Dock = DockStyle.Fill;
-        _mainContent.BackColor = Color.FromArgb(15, 15, 15);
-        _mainContent.Padding = new Padding(20);
-    }
-
     private void InitializeDashboardPanel()
     {
         _dashboardPanel.Dock = DockStyle.Fill;
@@ -153,7 +104,7 @@ public partial class RocketStatsForm
         _profileAvatar.Location = new Point(20, 20);
         _profileAvatar.Image = ImageHelper.CreateAvatar("", 80);
 
-        _profileNameLabel.Text = "Aucun joueur s\u0019lectionn\u0019";
+        _profileNameLabel.Text = "Aucun joueur selectionne";
         _profileNameLabel.ForeColor = Color.White;
         _profileNameLabel.Font = new Font("Segoe UI", 16, FontStyle.Bold);
         _profileNameLabel.Location = new Point(110, 20);
@@ -178,4 +129,4 @@ public partial class RocketStatsForm
 
         _profilePreviewPanel.Controls.Add(profileContainer);
     }
-}
+

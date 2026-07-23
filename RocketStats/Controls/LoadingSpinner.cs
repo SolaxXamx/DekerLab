@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace RocketStats;
 
@@ -9,7 +10,7 @@ public class LoadingSpinner : Control
     private int _lineWidth = 4;
     private int _radius = 20;
     private Color _color = Color.FromArgb(0, 120, 215);
-    private Timer _timer = new();
+    private System.Windows.Forms.Timer _timer = new();
 
     public Color SpinnerColor
     {
