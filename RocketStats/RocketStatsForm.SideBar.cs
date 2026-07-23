@@ -129,4 +129,4 @@ public partial class RocketStatsForm
 
         _profilePreviewPanel.Controls.Add(profileContainer);
     }
-
+}
