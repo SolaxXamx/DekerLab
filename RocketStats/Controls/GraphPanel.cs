@@ -61,11 +61,11 @@ public class GraphPanel : RoundedPanel
         }
 
         using var fillPath = new GraphicsPath();
-        fillPath.AddLine(points);
+        fillPath.AddLines(points);
         fillPath.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, 
                         points[points.Length - 1].X, graphRect.Bottom);
-        fillPath.AddLine(graphRect.Bottom, points[points.Length - 1].X, 
-                        graphRect.Bottom, points[0].X);
+        fillPath.AddLine(points[points.Length - 1].X, graphRect.Bottom, 
+                        points[0].X, graphRect.Bottom);
         fillPath.CloseFigure();
 
         using var fillBrush = new SolidBrush(_fillColor);

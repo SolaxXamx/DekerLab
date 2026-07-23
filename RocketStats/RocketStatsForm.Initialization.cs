@@ -64,7 +64,7 @@ public partial class RocketStatsForm
         if (_settings.AutoLoadLastPlayer && !string.IsNullOrEmpty(_settings.LastUsername))
         {
             _currentUsername = _settings.LastUsername;
-            LoadPlayerData(_settings.LastUsername);
+            _ = LoadPlayerData(_settings.LastUsername);
         }
     }
 

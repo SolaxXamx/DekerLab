@@ -1,4 +1,5 @@
 using System.Drawing.Drawing2D;
+using System.Text.Json;
 
 namespace RocketStats;
 
@@ -32,13 +33,13 @@ public partial class RocketStatsForm
         _settingsContainer.BorderWidth = 1;
         _settingsContainer.Padding = new Padding(20);
 
-        _settingsTitle.Text = "PARAM\u0018TRES";
+        _settingsTitle.Text = "PARAMETRES";
         _settingsTitle.ForeColor = Color.White;
         _settingsTitle.Font = new Font("Segoe UI", 16, FontStyle.Bold);
         _settingsTitle.Dock = DockStyle.Top;
         _settingsTitle.Height = 40;
 
-        _themeLabel.Text = "Th\u001ame:";
+        _themeLabel.Text = "Theme:";
         _themeLabel.ForeColor = Color.FromArgb(150, 150, 150);
         _themeLabel.Font = new Font("Segoe UI", 10, FontStyle.Regular);
         _themeLabel.Location = new Point(20, 60);
@@ -62,20 +63,13 @@ public partial class RocketStatsForm
         _primaryColorPreview.BackColor = Color.FromArgb(0, 120, 215);
         _primaryColorPreview.Size = new Size(30, 30);
         _primaryColorPreview.Location = new Point(150, 96);
-        if (_primaryColorPreview is RoundedPanel roundedPanel)
+        _primaryColorPreview.Paint += (s, e) =>
         {
-            roundedPanel.CornerRadius = 6;
-        }
-        else
-        {
-            _primaryColorPreview.Paint += (s, e) =>
-            {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using var path = new GraphicsPath();
-                path.AddEllipse(0, 0, _primaryColorPreview.Width, _primaryColorPreview.Height);
-                e.Graphics.FillPath(new SolidBrush(_primaryColorPreview.BackColor), path);
-            };
-        }
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using var path = new GraphicsPath();
+            path.AddEllipse(0, 0, _primaryColorPreview.Width, _primaryColorPreview.Height);
+            e.Graphics.FillPath(new SolidBrush(_primaryColorPreview.BackColor), path);
+        };
         _primaryColorPreview.Click += PrimaryColorPreview_Click;
 
         _autoRefreshLabel.Text = "Actualisation automatique (minutes):";
@@ -117,7 +111,7 @@ public partial class RocketStatsForm
         _saveSettingsButton.Location = new Point(20, 250);
         _saveSettingsButton.Click += SaveSettingsButton_Click;
 
-        _resetSettingsButton.Text = "R\u0019initialiser";
+        _resetSettingsButton.Text = "Reinitialiser";
         _resetSettingsButton.CornerRadius = 8;
         _resetSettingsButton.Width = 120;
         _resetSettingsButton.Location = new Point(150, 250);
@@ -147,7 +141,7 @@ public partial class RocketStatsForm
 
     private void PrimaryColorPreview_Click(object? sender, EventArgs e)
     {
-        MessageBox.Show("Fonctionnalit\u0019 de s\u0019lection de couleur \u0010 impl\u0019menter", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show("Fonctionnalite de selection de couleur a implementer", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     private void SaveSettingsButton_Click(object? sender, EventArgs e)
@@ -157,7 +151,7 @@ public partial class RocketStatsForm
 
     private void ResetSettingsButton_Click(object? sender, EventArgs e)
     {
-        if (MessageBox.Show("Voulez-vous vraiment r\u0019initialiser tous les param\u001atres?", "Confirmation",
+        if (MessageBox.Show("Voulez-vous vraiment reinitialiser tous les parametres?", "Confirmation",
             MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
         {
             _settings = new AppSettings();
@@ -182,7 +176,7 @@ public partial class RocketStatsForm
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erreur lors du chargement des param\u001atres: " + ex.Message, "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Erreur lors du chargement des parametres: " + ex.Message, "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -201,7 +195,7 @@ public partial class RocketStatsForm
             string json = JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(SettingsFile, json);
             ApplyTheme();
-            MessageBox.Show("Param\u001atres sauvegard\u001as avec succ\u001as!", "RocketStats", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Parametres sauvegardes avec succes!", "RocketStats", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
